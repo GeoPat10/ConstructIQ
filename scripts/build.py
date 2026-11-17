@@ -20,7 +20,8 @@ if production:
     manifest=json.loads((out/'manifest.webmanifest').read_text());manifest.update(name='ConstructIQ',short_name='ConstructIQ',id='./')
     (out/'manifest.webmanifest').write_text(json.dumps(manifest,indent=2))
     import hashlib
-    version=hashlib.sha256(''.join(p.read_text() for p in sorted((out/'assets/js').glob('*.js'))).encode()).hexdigest()[:12]
+    version_files=[*(out/'assets/js').glob('*.js'),*(out/'assets/css').glob('*.css'),out/'index.html',out/'manifest.webmanifest',out/'config/development.js',out/'icon-192.png',out/'apple-touch-icon.png',root/'package-lock.json']
+    version=hashlib.sha256(b'\0'.join(p.read_bytes() for p in sorted(version_files,key=lambda p:p.name))).hexdigest()[:12]
     worker=(out/'sw.js').read_text().replace('constructiq-development-shell-v4','constructiq-connected-shell-'+version).replace("key.startsWith('constructiq-development-shell-')","(key.startsWith('constructiq-development-shell-')||key.startsWith('constructiq-connected-shell-'))")
     (out/'sw.js').write_text(worker)
 print(('Connected' if production else 'Development')+' app prepared in dist/')

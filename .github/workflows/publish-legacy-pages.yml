@@ -28,7 +28,7 @@ jobs:
         env:
           GH_TOKEN: ${{ github.token }}
           GH_REPO: ${{ github.repository }}
-          EXPECTED_LIVE_SHA: 138c8ae7a83fc5d4fff3cb48772f5b394b1a789f
+          EXPECTED_LIVE_SHA: 3efd2f6d6f3590e025aff7a3ff9cb4f2d2d59ee1
         run: |
           git fetch origin main
           actual=$(git rev-parse origin/main)
@@ -43,6 +43,6 @@ jobs:
             exit 0
           fi
           test "$actual" = "$EXPECTED_LIVE_SHA" || { echo 'Live source changed; review before publishing.'; exit 1; }
-          git commit -m 'Release ConstructIQ 2.0: verified production build'
+          git commit -m 'Update ConstructIQ: named alerts and original logo'
           git push origin HEAD:main
           gh api --method POST repos/GeoPat10/ConstructIQ/pages/builds
