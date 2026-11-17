@@ -28,3 +28,7 @@ h2{font-size:20px;font-weight:600;letter-spacing:-.5px;color:#e5c98e}h3{font-wei
 
 /* Staff accounts keep add/edit controls; destructive actions belong to the owner. */
 body.no-removals button[onclick^="del"],body.no-removals button[onclick^="remove"],body.no-removals button[onclick^="optimiseExisting"]{display:none!important}
+
+body.project-page #projectPicker,body.project-page .pageIntro,body.project-page .workspaceBanner{display:none}
+.projectCard{display:block;text-decoration:none;color:inherit}.projectCard:focus-visible{outline:2px solid var(--gold,#cfb779);outline-offset:4px}
+#projectPageHeader{margin-bottom:18px}#projectPageHeader h1{color:var(--gold,#cfb779);font-size:clamp(25px,5vw,38px);margin:8px 0;overflow-wrap:anywhere}#projectPageHeader .eyebrow{margin-top:18px}#projectPageAddress{margin:6px 0 0}

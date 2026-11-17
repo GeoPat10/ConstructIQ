@@ -55,10 +55,7 @@
  find('pushTest').onclick=async()=>{try{const subscription=await (await ready()).pushManager.getSubscription();if(!subscription)throw new Error('Enable notifications first.');await call('test',{endpoint:subscription.endpoint});status('Test accepted by the push service. Check your phone’s notifications to confirm delivery.');}catch(e){status(e.message);}};
  window.CINotifications={beforeSignOut:disable};
  async function openNotification(){
-  if(!location.hash.startsWith('#project='))return;const route=new URLSearchParams(location.hash.slice(1));
-  const p=projects.find(p=>p.id===route.get('project')||String(p.cloudId||'')===route.get('project'));if(!p)return;
-  const section=route.get('section');if(!['overview','checklist','materials','bc','hs','report','urgent','diary','issues'].includes(section))return;
-  await selectProject(p.id);const tab=[...document.querySelectorAll('.tab')].find(t=>(t.getAttribute('onclick')||'').includes("showTab('"+section+"'"));showTab(section,tab);
+  if(!location.hash.startsWith('#project='))return;const route=CIProjectPages.parse(location.href);if(route.kind==='project')await selectProject(route.id,route.section);
  }
  window.addEventListener('hashchange',()=>openNotification().catch(console.error));window.addEventListener('ci:ready',()=>openNotification().catch(console.error));
  if(projects.length)openNotification().catch(console.error);

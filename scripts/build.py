@@ -24,6 +24,7 @@ if production:
     version=hashlib.sha256(b'\0'.join(p.read_bytes() for p in sorted(version_files,key=lambda p:p.name))).hexdigest()[:12]
     worker=(out/'sw.js').read_text().replace('constructiq-development-shell-v4','constructiq-connected-shell-'+version).replace("key.startsWith('constructiq-development-shell-')","(key.startsWith('constructiq-development-shell-')||key.startsWith('constructiq-connected-shell-'))")
     (out/'sw.js').write_text(worker)
+shutil.copy2(out/'index.html',out/'project.html')
 print(('Connected' if production else 'Development')+' app prepared in dist/')
 
 # Package a pinned PDF renderer, worker, fonts, CMaps and image codecs for offline use.

@@ -35,6 +35,11 @@
   <div id="projectList" class="grid" style="margin-top:12px"></div>
 </div>
 
+<section id="projectPageHeader" class="card hidden" aria-label="Current project">
+<button class="headBtn" onclick="allProjects()">← All projects</button>
+<div class="eyebrow" id="projectPageRef"></div><h1 id="projectPageName"></h1><p id="projectPageAddress" class="muted"></p>
+</section>
+<section id="projectMissing" class="card hidden"><h1>Project unavailable</h1><p>This project is not available to this account on this device. Connect and refresh your projects, or return to the list.</p><button onclick="allProjects()">← All projects</button><button onclick="refreshProjects()">Refresh projects</button></section>
 <div id="appArea" class="hidden">
 <nav class="tabs" aria-label="Project sections">
 <button class="tab active" onclick="showTab('overview',this)"><span class="navIcon" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7" rx="1.5"/><rect x="14" y="3" width="7" height="7" rx="1.5"/><rect x="3" y="14" width="7" height="7" rx="1.5"/><rect x="14" y="14" width="7" height="7" rx="1.5"/></svg></span>Overview</button>
@@ -198,6 +203,7 @@
 <script src="assets/js/offline.js"></script>
 <script src="assets/js/sync-adapter.js"></script>
 <script src="assets/js/auth.js"></script>
+<script src="assets/js/project-pages.js"></script>
 <script src="assets/js/app.js"></script>
 <script src="assets/js/enhancements.js"></script>
 <script src="assets/js/push-shared.js"></script>

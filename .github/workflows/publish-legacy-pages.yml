@@ -28,7 +28,7 @@ jobs:
         env:
           GH_TOKEN: ${{ github.token }}
           GH_REPO: ${{ github.repository }}
-          EXPECTED_LIVE_SHA: 3efd2f6d6f3590e025aff7a3ff9cb4f2d2d59ee1
+          EXPECTED_LIVE_SHA: 2ec5403ab0602e5d8e78327bc3ccfbd7eee35f14
         run: |
           git fetch origin main
           actual=$(git rev-parse origin/main)
@@ -37,12 +37,12 @@ jobs:
           cd /tmp/constructiq-release
           git config user.name 'github-actions[bot]'
           git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
-          git add index.html setup.html manifest.webmanifest icon-192.png apple-touch-icon.png sw.js assets config
+          git add index.html project.html setup.html manifest.webmanifest icon-192.png apple-touch-icon.png sw.js assets config
           if git diff --cached --quiet; then
             echo 'This validated app build is already published.'
             exit 0
           fi
           test "$actual" = "$EXPECTED_LIVE_SHA" || { echo 'Live source changed; review before publishing.'; exit 1; }
-          git commit -m 'Update ConstructIQ: named alerts and original logo'
+          git commit -m 'Update ConstructIQ: separate project pages'
           git push origin HEAD:main
           gh api --method POST repos/GeoPat10/ConstructIQ/pages/builds

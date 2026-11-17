@@ -1,0 +1,6 @@
+const test=require('node:test'),assert=require('node:assert/strict'),P=require('../assets/js/project-pages.js');
+const scope='https://example.test/ConstructIQ/';
+test('each project has its own reloadable URL and selected section',()=>{const a=P.href({id:'local-1',cloudId:'shared-1'},'report',scope),b=P.href({id:'local-2'},'overview',scope);assert.notEqual(a,b);assert.equal(new URL(a).pathname,'/ConstructIQ/project.html');assert.deepEqual(P.parse(a),{kind:'project',id:'shared-1',section:'report'});});
+test('home never selects the first project and unavailable links never fall back',()=>{assert.equal(P.parse(scope).kind,'home');assert.equal(P.parse(scope+'project.html').kind,'missing');assert.equal(P.find([{id:'first'}],'unknown'),undefined);assert.equal(P.parse(scope+'project.html?project=..%2Fother').kind,'missing');});
+test('cloud and local aliases find the same existing record without copying it',()=>{const p={id:'local',cloudId:'shared'};assert.equal(P.find([p],'local'),p);assert.equal(P.find([p],'shared'),p);});
+test('legacy notification links and invalid sections are handled safely',()=>{assert.equal(P.parse(scope+'#project=shared&section=issues').section,'issues');assert.equal(P.parse(scope+'project.html?project=p&section=constructor').section,'overview');assert.throws(()=>P.href({id:'../wrong'},'overview',scope));});
