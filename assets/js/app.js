@@ -117,12 +117,12 @@ async function startCloud(){
  offlineEngine=CIOffline.create(db,{adapter:cloudAdapter,onStatus:syncStatus});
  projects=(await getAll('projects')).filter(p=>!p._archived);projects.forEach(migrateProject);
  if(navigator.onLine){try{await offlineEngine.flush();await pullCloud();cloudReady=true;}catch(error){if(!projects.length)throw error;setSync('Connection unavailable · showing device copy','bad');}}
- currentId=localStorage.getItem(selectionKey())||projects[0]?.id;if(!projects.some(p=>p.id===currentId))currentId=projects[0]?.id;
+ applyProjectRoute();
  authGate.classList.add('hidden');renderAll();window.dispatchEvent(new Event('ci:ready'));
  if(!navigator.onLine)setSync('Offline · saved on device','ok');
  clearInterval(syncTimer);syncTimer=setInterval(()=>offlineEngine.flush().catch(console.error),30000);
 }
-async function refreshProjects(){if(!account)return;setSync('Checking shared projects…');try{await offlineEngine.flush();await pullCloud();if(!projects.some(p=>p.id===currentId))currentId=projects[0]?.id;renderAll();const queue=await offlineEngine.list();syncStatus(queue.some(x=>x.status==='conflict')?'conflict':queue.length?'pending':'synced');}catch(e){setSync(e.message,'bad');}}
+async function refreshProjects(){if(!account)return;setSync('Checking shared projects…');try{await offlineEngine.flush();await pullCloud();applyProjectRoute();renderAll();const queue=await offlineEngine.list();syncStatus(queue.some(x=>x.status==='conflict')?'conflict':queue.length?'pending':'synced');}catch(e){setSync(e.message,'bad');}}
 async function reviewSync(){
  if(!offlineEngine?.adapter){await showOfflineStatus();return;}
  const queued=await offlineEngine.list();if(queued.some(x=>x.status==='rejected'))alert('A change was blocked by account permissions. Shared records are preserved. Ask George to review it; your device copy has been kept.');const ids=[...new Set(queued.filter(x=>x.status==='conflict').map(x=>x.projectId))];
@@ -133,7 +133,7 @@ async function reviewSync(){
 async function init(){
  if(CI_CONFIG.cloudEnabled){try{if(await restoreSession())await startCloud();else authGate.classList.remove('hidden');}catch(error){authErr.textContent=error.message;authGate.classList.remove('hidden');}return;}
  await openDB();offlineEngine=CIOffline.create(db,{onStatus:syncStatus});projects=await getAll('projects');projects.forEach(migrateProject);
- currentId=localStorage.getItem(selectionKey())||projects[0]?.id;if(!projects.some(p=>p.id===currentId))currentId=projects[0]?.id;
+ applyProjectRoute();
  authGate.classList.add('hidden');renderAll();setSync('On this device','ok');window.dispatchEvent(new Event('ci:ready'));
 }
 
@@ -142,9 +142,9 @@ async function persist(){
  const p=current();if(!p)return;
  const previous=await get('projects',p.id);
  p.activity=CIData.nextActivity(previous,p,account?.current()?.user?.email||'Development user');
- try{await offlineEngine.save(p);}catch(error){if(error.name!=='LocalConflict'||!confirm(error.message+'\n\nSave your edit as a separate project copy?'))throw error;const copy=structuredClone(p);copy.id=uid();copy.name=(copy.name||'Project')+' — local copy';delete copy.cloudId;delete copy._localRevision;await offlineEngine.save(copy);projects.push(copy);currentId=copy.id;fillDetails();}syncStatus(offlineEngine.adapter?'pending':'local');if(offlineEngine.adapter)offlineEngine.flush().catch(console.error);
+ try{await offlineEngine.save(p);}catch(error){if(error.name!=='LocalConflict'||!confirm(error.message+'\n\nSave your edit as a separate project copy?'))throw error;const copy=structuredClone(p);copy.id=uid();copy.name=(copy.name||'Project')+' — local copy';delete copy.cloudId;delete copy._localRevision;await offlineEngine.save(copy);projects.push(copy);currentId=copy.id;history.replaceState({},'',CIProjectPages.href(copy,'overview',projectScope));fillDetails();}syncStatus(offlineEngine.adapter?'pending':'local');if(offlineEngine.adapter)offlineEngine.flush().catch(console.error);
  document.getElementById('saveState').textContent='Saved '+new Date().toLocaleTimeString([], {hour:'2-digit',minute:'2-digit'});
- renderHeader();renderPicker();updateStats();if(typeof renderActivity==='function')renderActivity();
+ renderHeader();renderProjectPage();renderPicker();updateStats();if(typeof renderActivity==='function')renderActivity();
 }
 
 function renderHeader(){const p=current();document.getElementById('headerProject').textContent=p?p.name||'Untitled project':'No project selected'}
@@ -152,16 +152,27 @@ function renderPicker(){
  const box=document.getElementById('projectList');
  box.innerHTML=projects.slice().sort((a,b)=>b.created-a.created).map(p=>{
    const done=p.checklist.filter(x=>x.status==='green').length,total=p.checklist.length,open=p.issues.filter(x=>x.status==='Open').length;
-   return `<div class="card projectCard ${p.id===currentId?'active':''}" onclick="selectProject('${p.id}')"><div class="row"><div><div class="title">${esc(p.name||'Untitled project')}</div><div class="muted">${esc(p.address||'No address')}</div></div><span class="badge ${open?'bad':'good'}">${open} open</span></div><div style="margin-top:10px"><div class="progress"><div class="bar" style="width:${total?done/total*100:0}%"></div></div><div class="tiny" style="margin-top:5px">${done}/${total} stages complete</div></div></div>`
+   return `<a href="${esc(CIProjectPages.href(p,'overview',projectScope))}" class="card projectCard ${p.id===currentId?'active':''}" onclick="if(!event.ctrlKey&&!event.metaKey&&!event.shiftKey){event.preventDefault();selectProject('${p.id}')}"><div class="row"><div><div class="title">${esc(p.name||'Untitled project')}</div><div class="muted">${esc(p.address||'No address')}</div></div><span class="badge ${open?'bad':'good'}">${open} open</span></div><div style="margin-top:10px"><div class="progress"><div class="bar" style="width:${total?done/total*100:0}%"></div></div><div class="tiny" style="margin-top:5px">${done}/${total} stages complete</div></div></a>`
  }).join('');
 }
-async function selectProject(id){currentId=id;localStorage.setItem(selectionKey(),id);document.getElementById('appArea').classList.remove('hidden');renderAll()}
+const projectScope=new URL('./',location.href).href;
+let projectOperationCount=0,lastProjectURL=location.href;
+function projectDetailsDirty(){const p=current();return !!p&&[['pName','name'],['pManager','manager'],['pAddress','address'],['pRef','ref'],['pStart','start'],['pTarget','target'],['pNotes','notes']].some(([id,key])=>{const value=document.getElementById(id).value;return (['name','manager','address','ref'].includes(key)?value.trim():value)!==String(p[key]||'');});}
+async function leaveProject(){if(projectOperationCount){toast('Please wait for this project change to finish saving.');return false;}if(projectDetailsDirty()){if(!confirm('Save project details before leaving? Cancel keeps you on this project.'))return false;await saveProjectDetails();}return true;}
+function applyProjectRoute(){const route=CIProjectPages.parse(location.href);const p=route.kind==='project'?CIProjectPages.find(projects,route.id):null;currentId=p?.id||null;return route;}
+function renderProjectPage(){const route=CIProjectPages.parse(location.href),p=current();document.body.classList.toggle('project-page',route.kind!=='home');document.getElementById('projectPageHeader').classList.toggle('hidden',!p);document.getElementById('projectMissing').classList.toggle('hidden',route.kind==='home'||!!p);if(p){document.getElementById('projectPageName').textContent=p.name||'Untitled project';document.getElementById('projectPageRef').textContent=p.ref?'PROJECT · '+p.ref:'PROJECT';document.getElementById('projectPageAddress').textContent=p.address||'Address not yet added';}lastProjectURL=location.href;}
+async function selectProject(id,section='overview'){const p=CIProjectPages.find(projects,id);if(!p||!await leaveProject())return;history.pushState({},'',CIProjectPages.href(p,section,projectScope));applyProjectRoute();renderAll();showTab(section,projectTab(section));window.scrollTo(0,0);}
+function projectTab(section){return [...document.querySelectorAll('.tab')].find(t=>(t.getAttribute('onclick')||'').includes("showTab('"+section+"'"));}
+async function allProjects(){if(!await leaveProject())return;history.pushState({},'',projectScope);applyProjectRoute();renderAll();window.scrollTo(0,0);}
+window.addEventListener('popstate',async()=>{if(!await leaveProject()){history.pushState({},'',lastProjectURL);return;}applyProjectRoute();renderAll();if(current()){const section=CIProjectPages.parse(location.href).section;showTab(section,projectTab(section));}});
+window.addEventListener('beforeunload',event=>{if(projectOperationCount||projectDetailsDirty()){event.preventDefault();event.returnValue='';}});
 async function newProject(){
+ if(projectDetailsDirty()){if(!confirm('Save project details before creating another project?'))return;await saveProjectDetails();}
  const name=prompt('Project name','New project');if(!name)return;
- const p=blankProject(name.trim());p.activity=CIData.nextActivity(null,p,account?.current()?.user?.email||'Development user');await offlineEngine.save(p);projects.push(p);currentId=p.id;localStorage.setItem(selectionKey(),p.id);syncStatus(offlineEngine.adapter?'pending':'local');if(offlineEngine.adapter)offlineEngine.flush().catch(console.error);renderAll();showTab('overview',document.querySelector('.tab'));
+ const p=blankProject(name.trim());p.activity=CIData.nextActivity(null,p,account?.current()?.user?.email||'Development user');await offlineEngine.save(p);projects.push(p);currentId=p.id;localStorage.setItem(selectionKey(),p.id);syncStatus(offlineEngine.adapter?'pending':'local');if(offlineEngine.adapter)offlineEngine.flush().catch(console.error);history.pushState({},'',CIProjectPages.href(p,'overview',projectScope));renderAll();showTab('overview',projectTab('overview'));
 }
 async function deleteCurrentProject(){if(!requireRemovalPermission())return;
- const p=current();if(!p)return;if(CI_CONFIG.cloudEnabled){if(!confirm('Archive this project? Its shared records and files will be preserved.'))return;p._archived=true;await persist();projects=projects.filter(x=>x.id!==p.id);currentId=projects[0]?.id;renderAll();return;}if(!confirm(`Delete "${p.name||'this project'}" and all its information? This cannot be undone.`))return;
+ const p=current();if(!p)return;if(CI_CONFIG.cloudEnabled){if(!confirm('Archive this project? Its shared records and files will be preserved.'))return;p._archived=true;await persist();projects=projects.filter(x=>x.id!==p.id);currentId=null;history.pushState({},'',projectScope);renderAll();return;}if(!confirm(`Delete "${p.name||'this project'}" and all its information? This cannot be undone.`))return;
  for(const it of p.issues)for(const ph of (it.photos||[])){await del('photos',ph.id);dropThumb(ph.id)}
  for(const ph of p.bcPhotos||[]){await del('photos',ph.id);dropThumb(ph.id)}
  for(const u of p.urgent||[])for(const ph of u.photos||[]){await del('photos',ph.id);dropThumb(ph.id)}
@@ -169,7 +180,7 @@ async function deleteCurrentProject(){if(!requireRemovalPermission())return;
  for(const d of p.diary||[])for(const f of (d.files||[]))await del('changeFiles',f.id);
  await del('projects',p.id);projects=await getAll('projects');
  if(!projects.length){const n=blankProject();await put('projects',n);projects=[n]}
- currentId=projects[0].id;localStorage.setItem(selectionKey(),currentId);renderAll()
+ currentId=null;history.pushState({},'',projectScope);renderAll()
 }
 function fillDetails(){
  const p=current();if(!p)return;
@@ -179,6 +190,7 @@ async function saveProjectDetails(){
  const p=current();Object.assign(p,{name:pName.value.trim(),manager:pManager.value.trim(),address:pAddress.value.trim(),ref:pRef.value.trim(),start:pStart.value,target:pTarget.value,notes:pNotes.value});await persist()
 }
 function showTab(id,btn){
+ if(!CIProjectPages.sections.includes(id))id='overview';if(current())history.replaceState({},'',CIProjectPages.href(current(),id,projectScope));
  document.querySelectorAll('.panel').forEach(x=>x.classList.add('hidden'));document.getElementById(id).classList.remove('hidden');
  document.querySelectorAll('.tab').forEach(x=>{x.classList.remove('active');x.setAttribute('aria-pressed','false')});if(btn){btn.classList.add('active');btn.setAttribute('aria-pressed','true');btn.scrollIntoView({block:'nearest',inline:'nearest'});}
  if(id==='report')renderReport();
@@ -695,7 +707,7 @@ async function restoreBackup(file){
    }
    migrateProject(copy);copies.push(copy);
   }
-  await offlineEngine.importCopies(copies,records,uploads);projects=(await getAll('projects')).filter(p=>!p._archived);currentId=copies[0].id;renderAll();offlineEngine.flush().catch(console.error);toast('Restored copies saved; shared originals preserved');return;
+  await offlineEngine.importCopies(copies,records,uploads);projects=(await getAll('projects')).filter(p=>!p._archived);currentId=copies[0].id;history.pushState({},'',CIProjectPages.href(copies[0],'overview',projectScope));renderAll();offlineEngine.flush().catch(console.error);toast('Restored copies saved; shared originals preserved');return;
  }
 
  const staged=[];
@@ -710,16 +722,18 @@ async function restoreBackup(file){
  for(const item of staged)transaction.objectStore(item.store).put(item.record);
  await completed;projects=await getAll('projects');currentId=payload.projects[0]?.id||projects[0]?.id;
  for(const id of thumbUrls.keys())dropThumb(id);
- localStorage.setItem(selectionKey(),currentId||'');renderAll();toast('Backup imported into development');
+ if(current())history.pushState({},'',CIProjectPages.href(current(),'overview',projectScope));renderAll();toast('Backup imported into development');
  }catch(e){alert('Import failed: '+e.message);}
 }
 
 function renderAll(){
  document.getElementById('appArea').classList.toggle('hidden',!current());
- renderHeader();renderPicker();if(!current())return;fillDetails();updateStats();renderChecklist();renderMaterials();renderDiary();renderIssues();renderBC();renderHS();renderUrgent();renderReport();renderPlanFiles();if(typeof renderActivity==='function')renderActivity()
+ renderHeader();renderProjectPage();renderPicker();if(!current())return;fillDetails();updateStats();renderChecklist();renderMaterials();renderDiary();renderIssues();renderBC();renderHS();renderUrgent();renderReport();renderPlanFiles();if(typeof renderActivity==='function')renderActivity();const section=CIProjectPages.parse(location.href).section||'overview';showTab(section,projectTab(section));
 }
 window.addEventListener('beforeinstallprompt',e=>{e.preventDefault();deferredPrompt=e;installBtn.style.display='inline-block'});
 async function installApp(){if(!deferredPrompt)return;deferredPrompt.prompt();await deferredPrompt.userChoice;deferredPrompt=null;installBtn.style.display='none'}
 if('serviceWorker' in navigator && location.protocol.startsWith('http'))navigator.serviceWorker.register('sw.js').catch(e=>console.warn('Offline app cache unavailable',e));
 document.getElementById('loginPassword').addEventListener('keydown',e=>{if(e.key==='Enter')signIn()});
+
+for(const name of ['persist', 'newProject', 'deleteCurrentProject', 'saveProjectDetails', 'setStatus', 'updateCheck', 'delCheck', 'addChecklist', 'updateMat', 'setDelivered', 'addMaterial', 'delMaterial', 'addDiary', 'updateDiary', 'delDiary', 'addChangeFiles', 'delChangeFile', 'updateIssue', 'addIssue', 'delIssue', 'toggleIssue', 'addPhotos', 'removePhoto', 'optimiseExisting', 'addBCPhotos', 'updateBCPhoto', 'removeBCPhoto', 'deleteViewerPhoto', 'addPlanFiles', 'deletePlanFile', 'addUrgent', 'updateUrgent', 'setUrgent', 'delUrgent', 'addUrgentPhotos', 'removeUrgentPhoto', 'setPPE', 'updatePPE', 'addPPE', 'delPPE', 'addHSFiles', 'deleteHSFile', 'restoreBackup']){const operation=globalThis[name];globalThis[name]=async function(...args){projectOperationCount++;try{return await operation.apply(this,args);}finally{projectOperationCount--;}};}
 init().catch(e=>{document.getElementById('authErr').textContent='Could not open device storage: '+e.message;});

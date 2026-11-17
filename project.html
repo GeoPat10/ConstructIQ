@@ -1,0 +1,225 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#090a09">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta name="apple-mobile-web-app-title" content="ConstructIQ">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="apple-touch-icon" href="apple-touch-icon.png">
+<link rel="icon" type="image/png" href="icon-192.png">
+<title>ConstructIQ 2.0</title>
+<link rel="stylesheet" href="assets/css/app.css">
+<link rel="stylesheet" href="assets/css/theme.css">
+
+</head>
+<body>
+<div id="authGate" class="authGate"><div class="authCard"><div class="brand"><h1>Construct<span class="iq">IQ</span></h1></div><h2 style="margin-top:18px">Sign in</h2><p class="muted">Sign in to open the shared ConstructIQ workspace.</p><label>Email</label><input id="loginEmail" type="email" autocomplete="email"><div style="height:10px"></div><label>Password</label><input id="loginPassword" type="password" autocomplete="current-password"><button class="primary" style="width:100%;margin-top:14px" onclick="signIn()">Sign in</button><div id="authErr" class="authErr"></div></div></div>
+<header><div class="head">
+  <div class="brand" style="display:flex;align-items:center;gap:10px"><img src="data:image/png;base64,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" alt="" width="34" height="34" style="border-radius:8px;flex:0 0 auto"><div><h1>Construct<span class="iq">IQ</span></h1><div id="headerProject">No project selected</div></div></div>
+  <div class="actions">
+    <span id="syncState" class="syncPill">Cloud</span><button class="headBtn small" onclick="showWorkspaceInfo()">Workspace info</button>
+    <button class="headBtn small" id="installBtn" style="display:none" onclick="installApp()">Install</button>
+    <button class="headBtn small" onclick="showOfflineStatus()">Offline files</button>
+    <button class="headBtn small" onclick="newProject()">New project</button>
+  </div>
+</div></header>
+
+<main>
+<div class="workspaceBanner noPrint"><span class="eyebrow">SHARED WORKSPACE</span><span>Projects shared with your team · Offline changes sync when connected</span></div>
+<div class="pageIntro"><div class="eyebrow">SMARTER CONSTRUCTION MANAGEMENT</div><h1>Your site. In sight.</h1><p>Keep your projects, people and progress together.</p></div>
+<div id="projectPicker" class="card">
+  <div class="row"><div><h2 style="margin:0 0 3px">Projects</h2><div class="muted">Your shared projects. Saved changes sync when connected.</div></div><button class="primary" onclick="newProject()">+ New project</button></div>
+  <div id="projectList" class="grid" style="margin-top:12px"></div>
+</div>
+
+<section id="projectPageHeader" class="card hidden" aria-label="Current project">
+<button class="headBtn" onclick="allProjects()">← All projects</button>
+<div class="eyebrow" id="projectPageRef"></div><h1 id="projectPageName"></h1><p id="projectPageAddress" class="muted"></p>
+</section>
+<section id="projectMissing" class="card hidden"><h1>Project unavailable</h1><p>This project is not available to this account on this device. Connect and refresh your projects, or return to the list.</p><button onclick="allProjects()">← All projects</button><button onclick="refreshProjects()">Refresh projects</button></section>
+<div id="appArea" class="hidden">
+<nav class="tabs" aria-label="Project sections">
+<button class="tab active" onclick="showTab('overview',this)"><span class="navIcon" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7" rx="1.5"/><rect x="14" y="3" width="7" height="7" rx="1.5"/><rect x="3" y="14" width="7" height="7" rx="1.5"/><rect x="14" y="14" width="7" height="7" rx="1.5"/></svg></span>Overview</button>
+<button class="tab" onclick="showTab('checklist',this)"><span class="navIcon" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><rect x="5" y="4" width="14" height="17" rx="2"/><path d="M9 4V2h6v2M9 10l1 1 2-2M14 10h2M9 16l1 1 2-2M14 16h2"/></svg></span>Checklist</button>
+<button class="tab" onclick="showTab('urgent',this)"><span class="navIcon" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="m13 2-9 12h7l-1 8 10-13h-8l1-7Z"/></svg></span>Urgent to do <span id="urgentCount" class="badge bad hidden" style="margin-left:4px"></span></button>
+<button class="tab" onclick="showTab('materials',this)"><span class="navIcon" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="m12 3 9 5-9 5-9-5 9-5ZM3 8v9l9 5 9-5V8M12 13v9M7.5 5.5l9 5"/></svg></span>Materials</button>
+<button class="tab" onclick="showTab('diary',this)"><span class="navIcon" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M14 3H5a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-9M16 2l6 6M9 15l1-5 8-8 4 4-8 8-5 1Z"/></svg></span>Plan variations</button>
+<button class="tab" onclick="showTab('issues',this)"><span class="navIcon" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="m12 3 10 17H2L12 3ZM12 9v5M12 17h.01"/></svg></span>Snagging</button>
+<button class="tab" onclick="showTab('bc',this)"><span class="navIcon" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M4 7h4l2-3h4l2 3h4a1 1 0 0 1 1 1v12H3V8a1 1 0 0 1 1-1Z"/><circle cx="12" cy="13" r="4"/></svg></span>Building Control</button>
+<button class="tab" onclick="showTab('hs',this)"><span class="navIcon" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="m12 2 9 4v6c0 5-9 10-9 10S3 17 3 12V6l9-4Z"/><path d="m8 12 3 3 5-6"/></svg></span>Health &amp; Safety</button>
+<button class="tab" onclick="showTab('report',this)"><span class="navIcon" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M4 4h6l2 2h8v14H4V4Z"/><path d="M8 16v-4M12 16v-6M16 16v-3"/></svg></span>Plans/Charts</button>
+<button class="tab" onclick="showTab('activity',this);renderActivity()"><span class="navIcon" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l4 2"/></svg></span>Activity</button>
+<button class="tab" onclick="showTab('backup',this)"><span class="navIcon" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3v12m-4-4 4 4 4-4M4 15v6h16v-6"/></svg></span>Backup</button>
+</nav>
+
+<section id="overview" class="panel">
+<div class="card">
+  <div class="row"><div><h2 style="margin:0 0 3px">Project details</h2><div class="muted">Keep the basic job information here.</div></div><span id="saveState" class="tiny">Saved</span></div>
+  <div class="grid" style="margin-top:12px">
+    <div><label>Project name</label><input id="pName" placeholder="e.g. 24 High Street Refurbishment"></div>
+    <div><label>Project manager</label><input id="pManager" placeholder="Your name"></div>
+    <div><label>Site address</label><input id="pAddress" placeholder="Site address"></div>
+    <div><label>Project reference</label><input id="pRef" placeholder="Reference / job number"></div>
+    <div><label>Start date</label><input id="pStart" type="date"></div>
+    <div><label>Target completion</label><input id="pTarget" type="date"></div>
+  </div>
+  <div style="margin-top:12px"><label>General project notes</label><textarea id="pNotes" placeholder="General notes, client requirements, key information..."></textarea></div>
+  <div style="margin-top:14px">
+    <div class="row"><label style="margin:0">Work progress</label><span id="wpPct" class="tiny" style="font-weight:800"></span></div>
+    <div class="workBar" style="margin-top:6px"><div id="wpFill" class="workFill"></div><div id="wpMark" class="workMark hidden" title="Where we should be today"></div></div>
+    <div id="wpSchedule" style="margin-top:8px"></div>
+  </div>
+  <div class="actions" style="margin-top:10px"><button class="primary" onclick="saveProjectDetails()">Save details</button><button class="danger" onclick="deleteCurrentProject()">Delete project</button></div>
+</div>
+<div class="card">
+  <h2 style="margin:0 0 8px">Progress</h2>
+  <div class="progress"><div id="bar" class="bar"></div></div>
+  <div class="stats" style="margin-top:12px">
+    <div class="stat"><span class="muted">Complete</span><b id="sDone">0</b></div>
+    <div class="stat"><span class="muted">Outstanding</span><b id="sOpen">0</b></div>
+    <div class="stat"><span class="muted">Awaiting delivery</span><b id="sMat">0</b></div>
+    <div class="stat"><span class="muted">Open snags</span><b id="sIssue">0</b></div>
+  </div>
+</div>
+</section>
+
+<section id="checklist" class="panel hidden">
+<div class="card">
+  <div class="row"><div><h2 style="margin:0 0 3px">Project checklist</h2><div class="muted">Mark stages complete and add stage-specific notes.</div></div><button class="secondary" onclick="addChecklist()">+ Add item</button></div>
+  <div class="actions" style="margin-top:10px"><button class="small secondary" onclick="filterChecklist('all')">All</button><button class="small secondary" onclick="filterChecklist('open')">Outstanding</button><button class="small secondary" onclick="filterChecklist('done')">Complete</button></div>
+  <div id="checkItems"></div>
+</div>
+</section>
+
+<section id="urgent" class="panel hidden">
+<div class="card">
+  <div class="row"><div><h2 style="margin:0 0 3px">Urgent to do</h2><div class="muted">Urgent jobs that need doing. Red = not started, amber = started, green = done.</div></div><button class="secondary" onclick="addUrgent()">+ Add job</button></div>
+  <div class="actions" style="margin-top:10px"><button class="small secondary" onclick="filterUrgent('open')">Outstanding</button><button class="small secondary" onclick="filterUrgent('done')">Done</button><button class="small secondary" onclick="filterUrgent('all')">All</button></div>
+  <div id="urgentSummary" class="tiny" style="margin-top:8px"></div>
+  <div id="urgentItems"></div>
+</div>
+</section>
+
+<section id="materials" class="panel hidden">
+<div class="card">
+  <div class="row"><div><h2 style="margin:0 0 3px">Materials</h2><div class="muted">Materials needed for each stage. Red = not delivered yet, green = delivered to site.</div></div></div>
+  <div class="actions" style="margin-top:10px"><button class="small secondary" onclick="filterMaterials('all')">All stages</button><button class="small secondary" onclick="filterMaterials('open')">Awaiting delivery</button><button class="small secondary" onclick="filterMaterials('done')">Delivered</button></div>
+  <div id="matSummary" class="tiny" style="margin-top:8px"></div>
+  <div id="matItems"></div>
+</div>
+</section>
+
+<section id="diary" class="panel hidden">
+<div class="card">
+  <div class="row"><div><h2 style="margin:0 0 3px">Plan variations</h2><div class="muted">Log any change the customer or architect instructs, so it's clear to everyone on site.</div></div><button class="secondary" onclick="addDiary()">+ Add variation</button></div>
+  <div id="diaryItems"></div>
+</div>
+</section>
+
+<section id="issues" class="panel hidden">
+<div class="card">
+  <div class="row"><div><h2 style="margin:0 0 3px">Snagging & rectifications</h2><div class="muted">Record defects, priority, responsibility, comments and photos.</div></div><button class="secondary" onclick="addIssue()">+ Add snag</button></div>
+  <div id="issueItems"></div>
+</div>
+</section>
+
+<section id="bc" class="panel hidden">
+<div class="card">
+  <div class="row"><div><h2 style="margin:0 0 3px">Building Control photos</h2><div class="muted">Photos for each inspection stage, all in one place. Tap a photo to view it full size, add a caption, move it to another stage or share it.</div></div></div>
+  <div id="bcSummary" class="tiny" style="margin-top:8px"></div>
+  <input id="bcInput" type="file" accept="image/*" multiple style="display:none" onchange="addBCPhotos(this.files);this.value=''">
+  <div id="bcStages"></div>
+</div>
+</section>
+
+<section id="hs" class="panel hidden">
+<div class="card">
+  <div class="row"><div><h2 style="margin:0 0 3px">PPE &amp; safety equipment</h2><div class="muted">Green = OK on site. Red = lost, damaged or needs replacing. Tap red to report a problem and say what's needed.</div></div><button class="secondary" onclick="addPPE()">+ Add item</button></div>
+  <div id="ppeSummary" class="tiny" style="margin-top:8px"></div>
+  <div id="ppeItems"></div>
+</div>
+<div class="card">
+  <div class="row"><div><h2 style="margin:0 0 3px">Health &amp; safety documents</h2><div class="muted">Risk assessments, method statements, COSHH sheets and other H&amp;S paperwork for this job.</div></div></div>
+  <div class="grid" style="margin-top:12px">
+    <div><label>Document type</label><select id="hsType"><option>Risk assessment</option><option>Method statement</option><option>COSHH assessment</option><option>Construction phase plan</option><option>Site induction</option><option>Toolbox talk</option><option>Training certificate</option><option>Other</option></select></div>
+    <div><label>Upload file(s)</label><input id="hsInput" type="file" accept="application/pdf,image/*,.doc,.docx,.xls,.xlsx" multiple onchange="addHSFiles(this.files)"></div>
+  </div>
+  <div id="hsFileList" style="margin-top:6px"></div>
+</div>
+</section>
+
+<section id="report" class="panel hidden">
+<div class="card noPrint">
+  <div class="row"><div><h2 style="margin:0 0 3px">Plans & Gantt charts</h2><div class="muted">Upload site plans, Gantt charts, drawings and other project documents.</div></div></div>
+  <div class="grid" style="margin-top:12px">
+    <div><label>Document type</label><select id="fileType"><option>Site plan</option><option>Gantt chart</option><option>Drawing</option><option>Other</option></select></div>
+    <div><label>Upload file(s)</label><input id="fileInput" type="file" accept="application/pdf,image/*" multiple onchange="addPlanFiles(this.files)"></div>
+  </div>
+  <div class="grid" style="margin-top:12px"><div><label for="documentFolder">Folder for new files</label><input id="documentFolder" placeholder="e.g. Architect / Structural / Building Control" maxlength="100"></div><div><label for="documentFilter">Show folder</label><select id="documentFilter" onchange="renderPlanFiles()"><option value="">All folders</option></select></div></div>
+<div id="fileList" style="margin-top:6px"></div>
+</div>
+<div class="card noPrint"><div class="row"><div><h2 style="margin:0 0 3px">Site report</h2><div class="muted">Print or save this report as a PDF.</div></div><button class="primary" onclick="window.print()">Print / Save PDF</button></div></div>
+<div id="reportBody" class="reportSheet"></div>
+</section>
+
+<section id="activity" class="panel hidden"><div class="card"><div class="eyebrow">PROJECT RECORD</div><h2>Activity history</h2><p class="muted">Shared changes are recorded by the server. Device records remain available offline.</p><div id="activityItems"></div></div></section>
+<section id="backup" class="panel hidden">
+<div class="card">
+  <h2 style="margin:0 0 5px">Backup & restore</h2>
+  <p class="muted">Export includes every referenced attachment or stops with a missing-file error. Imports create restored copies and preserve shared originals.</p>
+  <div class="notice">For best protection, export a backup after important site visits and keep the file somewhere safe (iCloud Drive, OneDrive, Google Drive or your laptop).</div>
+  <div class="actions" style="margin-top:12px"><button class="primary" onclick="exportBackup(true)">Export this project</button><button class="secondary" onclick="exportBackup(false)">Export all projects</button><button class="secondary" onclick="document.getElementById('restoreFile').click()">Restore backup</button><input id="restoreFile" type="file" accept=".json,application/json" style="display:none" onchange="restoreBackup(this.files[0]);this.value=''"></div>
+</div>
+<div class="card">
+  <h3 style="margin:0 0 5px">Storage on this device</h3>
+  <div id="storageInfo" class="muted">Checking…</div>
+  <div class="progress" style="margin-top:10px"><div id="storageBar" class="bar"></div></div>
+  <div id="storagePersist" class="tiny" style="margin-top:8px"></div>
+  <p class="muted" style="margin-bottom:0">New photos are automatically resized to a sharp but sensible size (about 0.3–0.6 MB each instead of 3–5 MB). Use the button below once to shrink photos added before this update and clear out files left behind by deleted projects.</p>
+  <div class="actions" style="margin-top:10px"><button class="secondary" onclick="optimiseExisting()">Tidy up &amp; shrink existing photos</button></div>
+</div>
+<div class="card">
+  <h3 style="margin:0 0 5px">Install on iPhone</h3>
+  <p class="muted">Once this app is hosted on a web address, open it in Safari, tap Share, then Add to Home Screen. It will open like an app.</p>
+  <h3 style="margin:14px 0 5px">Use on laptop</h3>
+  <p class="muted">Use your individual account. Closing the app keeps alerts on; signing out turns them off on this device.</p>
+</div>
+</section>
+</div>
+</main>
+
+<div id="viewer" class="viewer hidden" onclick="if(event.target===this)closeViewer()">
+  <div class="viewerTop"><span id="vCount"></span><button class="ghost small" onclick="closeViewer()">Close</button></div>
+  <div class="viewerImgWrap" onclick="if(event.target===this)closeViewer()"><button class="vNav" id="vPrev" onclick="stepViewer(-1)" aria-label="Previous photo">‹</button><img id="vImg" alt="Photo"><button class="vNav" id="vNext" onclick="stepViewer(1)" aria-label="Next photo">›</button></div>
+  <div class="viewerBar" id="vBar"></div>
+</div>
+<div id="toast" class="toast hidden"></div>
+
+<script src="config/development.js"></script>
+<script src="assets/js/data.js"></script>
+<script src="assets/js/offline.js"></script>
+<script src="assets/js/sync-adapter.js"></script>
+<script src="assets/js/auth.js"></script>
+<script src="assets/js/project-pages.js"></script>
+<script src="assets/js/app.js"></script>
+<script src="assets/js/enhancements.js"></script>
+<script src="assets/js/push-shared.js"></script>
+<script src="assets/js/notifications.js"></script>
+
+<div id="pdfViewerOverlay" class="pdfOverlay" role="dialog" aria-modal="true" aria-label="Document viewer" style="display:none">
+ <div class="pdfTitleBar"><strong id="pdfViewerTitle">Drawing</strong><button type="button" onclick="closeInAppPdf()">Close</button></div>
+ <div class="pdfToolbar" aria-label="Drawing controls">
+  <button id="pdfPrevious" onclick="CIPdfViewer.step(-1)" aria-label="Previous page">‹</button><span id="pdfPageNumber" aria-live="polite">1 / 1</span><button id="pdfNext" onclick="CIPdfViewer.step(1)" aria-label="Next page">›</button>
+  <button onclick="CIPdfViewer.zoomOut()" aria-label="Zoom out">−</button><span id="pdfZoomLabel" aria-live="polite">100%</span><button onclick="CIPdfViewer.zoomIn()" aria-label="Zoom in">+</button>
+  <button onclick="CIPdfViewer.fit()">Fit width</button><button onclick="CIPdfViewer.rotate()">Rotate</button><button onclick="CIPdfViewer.download()">Download original</button>
+ </div>
+ <div id="pdfViewerStatus" class="pdfStatus" role="status">Loading…</div>
+ <div id="pdfViewport" class="pdfViewport"><div id="pdfViewerPages"></div></div>
+</div>
+
+<script src="assets/js/pdf-viewer.js"></script>
+</body>
+</html>
