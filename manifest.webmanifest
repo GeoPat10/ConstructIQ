@@ -1,15 +1,16 @@
 {
-  "name": "ConstructIQ",
-  "short_name": "ConstructIQ",
+  "name": "ConstructIQ Development",
+  "short_name": "CIQ Dev",
   "start_url": "./",
   "display": "standalone",
-  "background_color": "#ffffff",
-  "theme_color": "#ffffff",
+  "background_color": "#090a09",
+  "theme_color": "#090a09",
   "icons": [
     {
       "src": "icon-192.png",
       "sizes": "192x192",
       "type": "image/png"
     }
-  ]
+  ],
+  "id": "./development"
 }
