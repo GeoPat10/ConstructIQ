@@ -1,0 +1,2 @@
+// Public client settings. Private signing keys remain encrypted in Supabase Vault.
+const CI_CONFIG=Object.freeze({"environment":"production","databaseName":"ConstructIQ2","cloudEnabled":true,"url":"https://lpspftywwisygobokdan.supabase.co","publishableKey":"sb_publishable_pDZH1oc-eBaEstmud5bDzw_D_8S0NF6","push":{"enabled":true,"apiUrl":"https://lpspftywwisygobokdan.supabase.co/functions/v1/ci-push","publicKey":"BNDNi3BPTrpR_ShuQpJFEMcfslrflNWt2_xfEpX6Eq_I3MUjyu7H5U9a9sioSXRf-D1wF7z29DR6hakCrMNb0UY","publishableKey":"sb_publishable_pDZH1oc-eBaEstmud5bDzw_D_8S0NF6"}});

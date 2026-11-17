@@ -1,0 +1,23 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="referrer" content="no-referrer"><meta name="robots" content="noindex"><title>Set your password · ConstructIQ</title><style>
+:root{color-scheme:dark;font:16px system-ui,sans-serif;background:#090a09;color:#f4eddc}body{margin:0;min-height:100vh;display:grid;place-items:center;padding:24px;box-sizing:border-box}.card{width:min(100%,440px);background:#131412;border:1px solid #514735;border-radius:20px;padding:30px;box-sizing:border-box}h1{color:#d7bd82;font-size:28px;margin:0 0 22px}h2{font-size:22px}p{line-height:1.55;color:#d5cebd}label{display:block;margin:18px 0 7px}input,button{width:100%;box-sizing:border-box;border-radius:10px;font:inherit;padding:13px}input{border:1px solid #655943;background:#090a09;color:#f4eddc}button{border:0;background:#d7bd82;color:#14120e;font-weight:700;margin-top:24px;cursor:pointer}button:disabled{opacity:.55;cursor:wait}a{color:#d7bd82}#status{min-height:24px;overflow-wrap:anywhere}form[hidden]{display:none}
+</style></head><body><main class="card"><h1>ConstructIQ</h1><h2>Set your password</h2><p id="intro">Checking your invitation…</p><p id="status" role="status" aria-live="polite"></p><form id="setupForm" hidden><label for="password">New password</label><input id="password" type="password" minlength="12" autocomplete="new-password" required><label for="repeat">Confirm password</label><input id="repeat" type="password" minlength="12" autocomplete="new-password" required><p>Use at least 12 characters. Keep this password to yourself.</p><button id="submit" type="submit">Save my password</button></form><p><a href="./">Open ConstructIQ</a></p></main><script>
+'use strict';
+const api='https://lpspftywwisygobokdan.supabase.co/auth/v1';
+const key='sb_publishable_pDZH1oc-eBaEstmud5bDzw_D_8S0NF6';
+const status=document.getElementById('status'),intro=document.getElementById('intro'),form=document.getElementById('setupForm');
+let access=null;
+async function request(path,options={}){const response=await fetch(api+path,{...options,headers:{apikey:key,'Content-Type':'application/json',...(access?{Authorization:'Bearer '+access}:{}),...options.headers},signal:AbortSignal.timeout(15000)});if(!response.ok)throw new Error(response.status===401||response.status===403||response.status===400?'This invitation is invalid or has expired. Ask George for a new invitation.':'Could not reach the account service. Please retry.');return response.status===204?null:response.json();}
+(async()=>{try{
+ const fragment=new URLSearchParams(location.hash.slice(1)),query=new URLSearchParams(location.search);
+ const tokenHash=query.get('token_hash')||fragment.get('token_hash');const type=query.get('type')||fragment.get('type');
+ access=fragment.get('access_token');
+ // Remove credentials from the address bar immediately; nothing is kept in browser storage.
+ history.replaceState(null,'',location.pathname);
+ if(tokenHash&&['invite','recovery'].includes(type)){const session=await request('/verify',{method:'POST',body:JSON.stringify({token_hash:tokenHash,type})});access=session.access_token;}
+ if(!access)throw new Error('Open the account invitation sent to your email address.');
+ const user=await request('/user');if(!user.id||!user.email)throw new Error('Could not verify this invitation.');
+ intro.textContent='Create your own password for '+user.email+'.';status.textContent='';form.hidden=false;
+ }catch(error){access=null;intro.textContent='Account setup';status.textContent=error.message;}})();
+form.addEventListener('submit',async event=>{event.preventDefault();const password=document.getElementById('password'),repeat=document.getElementById('repeat'),button=document.getElementById('submit');if(password.value!==repeat.value){status.textContent='The passwords do not match.';return;}if(password.value.length<12){status.textContent='Use at least 12 characters.';return;}button.disabled=true;status.textContent='Saving…';try{await request('/user',{method:'PUT',body:JSON.stringify({password:password.value})});password.value='';repeat.value='';try{await request('/logout?scope=global',{method:'POST'});}catch{}access=null;form.hidden=true;intro.textContent='Your password is ready.';status.textContent='Open ConstructIQ and sign in with your email address and new password.';}catch(error){status.textContent=error.message;button.disabled=false;}});
+</script></body></html>
