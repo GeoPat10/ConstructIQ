@@ -1,0 +1,1 @@
+Approved production release requested 17 November 2026. Build and validate the browser app before updating the existing main-based Pages site. Hold all account invitation emails until the phone app is live.
