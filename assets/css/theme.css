@@ -3,7 +3,7 @@
 body{font-family:"Avenir Next","Segoe UI",sans-serif;line-height:1.5;padding-bottom:130px;background:var(--bg);color:var(--text)}
 header{background:#090a09;color:var(--text);border-bottom:1px solid #71603c;padding-block:20px;box-shadow:none}
 .head{max-width:1320px}.brand h1{font-size:26px;letter-spacing:-1px;font-weight:650;color:#f3eddf}.brand h1 .iq{color:#d3b574}
-header .brand>img{display:none}#headerProject{color:#b6b1a4;margin-top:5px}.headBtn{background:#191b16;color:#e5c98e;border-color:#645738}.headBtn:hover{background:#292419}
+header .brand>img{display:block;width:42px;height:42px;object-fit:contain}#headerProject{color:#b6b1a4;margin-top:5px}.headBtn{background:#191b16;color:#e5c98e;border-color:#645738}.headBtn:hover{background:#292419}
 main{max-width:1320px;margin-top:0;padding:0 28px}.workspaceBanner{display:flex;justify-content:space-between;gap:14px;flex-wrap:wrap;padding:12px 0;border-bottom:1px solid var(--line);font-size:12px;color:#c5b894}.eyebrow{font-size:10px;letter-spacing:2px;font-weight:750;color:#d3b574}
 .pageIntro{padding:34px 0 25px}.pageIntro h1{font-size:clamp(30px,4vw,44px);font-weight:500;letter-spacing:-1.8px;margin:6px 0;color:#e5c98e}.pageIntro p{color:var(--muted);margin:0;font-size:14px}
 h2{font-size:20px;font-weight:600;letter-spacing:-.5px;color:#e5c98e}h3{font-weight:600;color:#e5c98e}.card{background:#121411;border-color:#36372e;border-radius:12px;padding:24px;box-shadow:none;margin-bottom:20px}

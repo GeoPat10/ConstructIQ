@@ -1,6 +1,6 @@
 importScripts('assets/js/push-shared.js','assets/pdf-assets.js');
 /* Cache only the development app shell. Never cache auth, APIs or remote files. */
-const CACHE='constructiq-connected-shell-b006c842d6d8';
+const CACHE='constructiq-connected-shell-855418f505a5';
 const SHELL=['./','index.html','manifest.webmanifest','icon-192.png','apple-touch-icon.png','config/development.js','assets/css/app.css','assets/css/theme.css','assets/js/data.js','assets/js/app.js','assets/js/auth.js','assets/js/enhancements.js','assets/js/push-shared.js','assets/js/notifications.js','assets/js/pdf-viewer.js','assets/js/offline.js','assets/js/sync-adapter.js','assets/pdf-assets.js',...(typeof CI_PDF_ASSETS==='undefined'?[]:CI_PDF_ASSETS)];
 self.addEventListener('install',event=>{event.waitUntil(caches.open(CACHE).then(async cache=>{await cache.addAll(SHELL);await cache.put(new URL('__offline_ready__',self.registration.scope).href,new Response('ready'));}));});
 self.addEventListener('activate',event=>{event.waitUntil(caches.keys().then(keys=>Promise.all(keys.filter(key=>(key.startsWith('constructiq-development-shell-')||key.startsWith('constructiq-connected-shell-'))&&key!==CACHE).map(key=>caches.delete(key)))).then(()=>self.clients.claim()));});
